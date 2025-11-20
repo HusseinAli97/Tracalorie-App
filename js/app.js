@@ -134,46 +134,38 @@ class App {
     #tracker;
     constructor() {
         this.#tracker = new CalorieTracker();
-        document.getElementById("meal-form").addEventListener("submit", this.#newMeal.bind(this));
-        document.getElementById("workout-form").addEventListener("submit", this.#newWorkout.bind(this));
-    }
-
-    #newMeal(e) {
-        e.preventDefault();
-        const name = document.getElementById("meal-name");
-        const calories = document.getElementById("meal-calories");
-        const collapse = document.getElementById("collapse-meal");
-
-        // Validation
-        if (name.value === "" && calories.value === "") {
-            alert("Fill The Meal Fields Please!");
-            return;
-        }
-        // form new meal
-        const meal = new Meal(name.value, +calories.value);
-        this.#tracker.addMeal(meal);
-        // clear Form
-        name.value = "";
-        calories.value = "";
-        // collapse html way and bs constructor  way
-        // collapse.classList.remove("show");
-        const bsCollapse = new bootstrap.Collapse(collapse, {
-            toggle: true,
+        document.getElementById("meal-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            this.#newItem.call(this, "meal");
+        });
+        document.getElementById("workout-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            this.#newItem.call(this, "workout");
         });
     }
-    #newWorkout(e) {
-        e.preventDefault();
-        const name = document.getElementById("workout-name");
-        const calories = document.getElementById("workout-calories");
-        const collapse = document.getElementById("collapse-workout");
+    // create New Item
+    #newItem(type) {
+        const name = document.getElementById(`${type}-name`);
+        const calories = document.getElementById(`${type}-calories`);
+        const collapse = document.getElementById(`collapse-${type}`);
         // validation
         if (name.value === "" && calories.value === "") {
-            alert("Fill Workout Field Please!");
+            alert(`Fill ${type} Field Please!`);
             return;
         }
         // form new workout
-        const workout = new Workout(name.value, +calories.value);
-        this.#tracker.addWorkout(workout);
+        switch (type) {
+            case "meal":
+                const meal = new Meal(name.value, +calories.value);
+                this.#tracker.addMeal(meal);
+                break;
+            case "workout":
+                const workout = new Workout(name.value, +calories.value);
+                this.#tracker.addWorkout(workout);
+                break;
+            default:
+                break;
+        }
         // clear
         name.value = "";
         calories.value = "";
