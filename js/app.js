@@ -37,6 +37,13 @@ class CalorieTracker {
         this.#displayNewItem(workout, "workoutItem", "bg-secondary");
         this.#renderStats();
     }
+    // Reset
+    resetDay() {
+        this.#totalCalories = 0;
+        this.#meals = [];
+        this.#workouts = [];
+        this.#renderStats();
+    }
     // Remove Method
     removeTheItem(id, type) {
         switch (type) {
@@ -224,6 +231,7 @@ class App {
             document.getElementById(`${type}-items`).addEventListener("click", this.#removeItem.bind(this, type));
             document.getElementById(`filter-${type}s`).addEventListener("keyup", this.#filterItems.bind(this, type));
         });
+        document.getElementById("reset").addEventListener("click", this.#reset.bind(this,["meal", "workout"]));
     }
     // create New Item
     #newItem(type, e) {
@@ -277,7 +285,6 @@ class App {
     // filter Items
     #filterItems(type, e) {
         const keyword = e.target.value.toLowerCase().trim();
-        const filteredArray = [];
         document.querySelectorAll(`#${type}-items .card`).forEach((element) => {
             // const name = element.children[0].children[0].children[0].innerText;
             const name = element.firstElementChild.firstElementChild.textContent.toLowerCase();
@@ -286,6 +293,14 @@ class App {
             } else {
                 element.classList.remove("d-none");
             }
+        });
+    }
+    // reset
+    #reset(type) {
+        this.#tracker.resetDay();
+        type.forEach((type) => {
+            document.getElementById(`${type}-items`).innerHTML = "";
+            document.getElementById(`filter-${type}s`).value = "";
         });
     }
 }
