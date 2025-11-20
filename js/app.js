@@ -75,6 +75,12 @@ class CalorieTracker {
             ToTalCalories: this.#totalCalories,
         };
     }
+    // set Limit
+    set setLimit(calorieLimit) {
+        this.#calorieLimit = calorieLimit;
+        this.#displayCaloriesLimit();
+        this.#renderStats();
+    }
 
     // Private
     // Display Methods In UI
@@ -197,10 +203,6 @@ class CalorieTracker {
         delBtn.appendChild(xIcon);
         return card;
     }
-
-    // set caloriesLimit(value) {
-    //     return (this.#calorieLimit = value);
-    // }
 }
 
 // Meals constructor : create New Meal(id,name,calories)
@@ -231,7 +233,8 @@ class App {
             document.getElementById(`${type}-items`).addEventListener("click", this.#removeItem.bind(this, type));
             document.getElementById(`filter-${type}s`).addEventListener("keyup", this.#filterItems.bind(this, type));
         });
-        document.getElementById("reset").addEventListener("click", this.#reset.bind(this,["meal", "workout"]));
+        document.getElementById("reset").addEventListener("click", this.#reset.bind(this, ["meal", "workout"]));
+        document.getElementById("limit-form").addEventListener("click", this.#setLimit.bind(this));
     }
     // create New Item
     #newItem(type, e) {
@@ -302,6 +305,22 @@ class App {
             document.getElementById(`${type}-items`).innerHTML = "";
             document.getElementById(`filter-${type}s`).value = "";
         });
+    }
+    // set LimitCalories
+    #setLimit(e) {
+        e.preventDefault();
+        const input = document.getElementById("limit");
+        if (e.target.classList.contains("save")) {
+            if (input.value === "") {
+                alert("Fill The Limit Please!");
+                return;
+            }
+            this.#tracker.setLimit = +input.value;
+            const modalElement = document.getElementById("limit-modal");
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            modal.hide();
+            input.value = "";
+        }
     }
 }
 new App();
