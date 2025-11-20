@@ -23,18 +23,44 @@ class CalorieTracker {
     }
 
     // Public
+    // Adding Methods
     addMeal(meal) {
         this.#meals.push(meal);
         this.#totalCalories += meal.calories;
+        this.#displayNewItem(meal, "mealItem", "bg-primary");
         this.#renderStats();
     }
 
     addWorkout(workout) {
         this.#workouts.push(workout);
         this.#totalCalories -= workout.calories;
+        this.#displayNewItem(workout, "workoutItem", "bg-secondary");
         this.#renderStats();
     }
-
+    // Remove Method
+    removeTheItem(id, type) {
+        switch (type) {
+            case "meal":
+                let indexMeal = this.#meals.findIndex((meal) => meal.id === id);
+                if (indexMeal !== -1) {
+                    this.#totalCalories -= this.#meals[indexMeal].calories;
+                    this.#meals.splice(indexMeal, 1);
+                    this.#renderStats();
+                }
+                break;
+            case "workout":
+                let indexWorkout = this.#workouts.findIndex((workout) => workout.id === id);
+                if (indexWorkout !== -1) {
+                    this.#totalCalories += this.#workouts[indexWorkout].calories;
+                    this.#workouts.splice(indexWorkout, 1);
+                    this.#renderStats();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    // Getter
     get fullData() {
         return {
             Meals: this.#meals,
@@ -44,10 +70,11 @@ class CalorieTracker {
     }
 
     // Private
+    // Display Methods In UI
     #displayTotalCalories() {
         const totalCaloriesEL = document.getElementById("calories-total");
+        //TODO - Need Refactor this in future to depend on the arrays
         totalCaloriesEL.innerHTML = this.#totalCalories;
-
         if (this.#totalCalories >= this.#calorieLimit || this.#totalCalories < 0) {
             totalCaloriesEL.parentElement.parentElement.classList.replace("bg-primary", "bg-warning");
         } else {
@@ -92,7 +119,6 @@ class CalorieTracker {
         }
     }
 
-    // Ui Elements
     #displayCalorieProgress() {
         const progressEL = document.getElementById("calorie-progress");
         const percentage = (this.#totalCalories / this.#calorieLimit) * 100;
@@ -100,7 +126,23 @@ class CalorieTracker {
         progressEL.style = `width:${width}%`;
     }
 
-    // Render ELement In DOM
+    #displayNewItem(oneItem, type, bg) {
+        const mealItems = document.getElementById("meal-items");
+        const workoutItems = document.getElementById("workout-items");
+        const item = this.#createCard(oneItem, bg);
+        switch (type) {
+            case "mealItem":
+                mealItems.append(item);
+                break;
+            case "workoutItem":
+                workoutItems.append(item);
+                break;
+            default:
+                break;
+        }
+    }
+
+    // Render and Create ELements In DOM
     #renderStats() {
         this.#displayTotalCalories();
         this.#displayCaloriesLimit();
@@ -109,6 +151,42 @@ class CalorieTracker {
         this.#displayCaloriesRemaining();
         this.#displayCalorieProgress();
     }
+    #createCard(type, bgColor) {
+        const card = document.createElement("div");
+        card.classList.add("card", "my-2");
+        card.setAttribute("data-id", type.id);
+
+        const cardBody = document.createElement("div");
+        cardBody.classList.add("card-body");
+        card.appendChild(cardBody);
+
+        const insideBody = document.createElement("div");
+        insideBody.classList.add("d-flex", "align-items-center", "justify-content-between");
+        cardBody.appendChild(insideBody);
+
+        const nameH4 = document.createElement("h4");
+        nameH4.classList.add("mx-1");
+        nameH4.textContent = type.name;
+        insideBody.appendChild(nameH4);
+
+        const caloriesDiv = document.createElement("div");
+        caloriesDiv.classList.add("fs-1", bgColor, "text-white", "text-center", "rounded-2", "px-2", "px-sm-5");
+        caloriesDiv.textContent = type.calories;
+        insideBody.appendChild(caloriesDiv);
+
+        const delBtn = document.createElement("button");
+        delBtn.classList.add("delete", "btn", "btn-danger", "btn-sm", "mx-2");
+        insideBody.appendChild(delBtn);
+
+        const xIcon = document.createElement("i");
+        xIcon.classList.add("fa-solid", "fa-xmark");
+        delBtn.appendChild(xIcon);
+
+        return card;
+    }
+    // set caloriesLimit(value) {
+    //     return (this.#calorieLimit = value);
+    // }
 }
 
 // Meals constructor : create New Meal(id,name,calories)
@@ -136,6 +214,7 @@ class App {
         this.#tracker = new CalorieTracker();
         ["meal", "workout"].forEach((type) => {
             document.getElementById(`${type}-form`).addEventListener("submit", this.#newItem.bind(this, type));
+            document.getElementById(`${type}-items`).addEventListener("click", this.#removeItem.bind(this, type));
         });
     }
     // create New Item
@@ -150,7 +229,7 @@ class App {
             alert(`Fill ${type} Field Please!`);
             return;
         }
-        
+
         // form new item
         switch (type) {
             case "meal":
@@ -175,6 +254,17 @@ class App {
         const bsCollapse = new bootstrap.Collapse(collapse, {
             toggle: true,
         });
+    }
+    // delete items
+    #removeItem(type, e) {
+        if (e.target.classList.contains("delete") || e.target.classList.contains("fa-xmark")) {
+            if (confirm("Are You Sure ?")) {
+                const theItemCard = e.target.closest(".card");
+                const id = theItemCard.dataset.id;
+                this.#tracker.removeTheItem(id, type);
+                theItemCard.remove();
+            }
+        }
     }
 }
 new App();
