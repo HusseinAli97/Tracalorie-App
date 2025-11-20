@@ -161,29 +161,36 @@ class CalorieTracker {
         card.appendChild(cardBody);
 
         const insideBody = document.createElement("div");
-        insideBody.classList.add("d-flex", "align-items-center", "justify-content-between");
+        insideBody.classList.add("row", "align-items-center");
         cardBody.appendChild(insideBody);
 
+        // Name Column
         const nameH4 = document.createElement("h4");
-        nameH4.classList.add("mx-1");
+        nameH4.classList.add("col-4", "mb-0");
         nameH4.textContent = type.name;
         insideBody.appendChild(nameH4);
 
+        // Calories Column
         const caloriesDiv = document.createElement("div");
-        caloriesDiv.classList.add("fs-1", bgColor, "text-white", "text-center", "rounded-2", "px-2", "px-sm-5");
+        caloriesDiv.classList.add("col-4", "fs-4", bgColor, "text-white", "text-center", "rounded-2", "py-2");
         caloriesDiv.textContent = type.calories;
         insideBody.appendChild(caloriesDiv);
 
+        // Delete Button Column
+        const delBtnWrapper = document.createElement("div");
+        delBtnWrapper.classList.add("col-4", "text-end");
+        insideBody.appendChild(delBtnWrapper);
+
         const delBtn = document.createElement("button");
-        delBtn.classList.add("delete", "btn", "btn-danger", "btn-sm", "mx-2");
-        insideBody.appendChild(delBtn);
+        delBtn.classList.add("delete", "btn", "btn-danger", "btn-sm");
+        delBtnWrapper.appendChild(delBtn);
 
         const xIcon = document.createElement("i");
         xIcon.classList.add("fa-solid", "fa-xmark");
         delBtn.appendChild(xIcon);
-
         return card;
     }
+
     // set caloriesLimit(value) {
     //     return (this.#calorieLimit = value);
     // }
@@ -215,6 +222,7 @@ class App {
         ["meal", "workout"].forEach((type) => {
             document.getElementById(`${type}-form`).addEventListener("submit", this.#newItem.bind(this, type));
             document.getElementById(`${type}-items`).addEventListener("click", this.#removeItem.bind(this, type));
+            document.getElementById(`filter-${type}s`).addEventListener("keyup", this.#filterItems.bind(this, type));
         });
     }
     // create New Item
@@ -255,7 +263,7 @@ class App {
             toggle: true,
         });
     }
-    // delete items
+    // delete Items
     #removeItem(type, e) {
         if (e.target.classList.contains("delete") || e.target.classList.contains("fa-xmark")) {
             if (confirm("Are You Sure ?")) {
@@ -265,6 +273,20 @@ class App {
                 theItemCard.remove();
             }
         }
+    }
+    // filter Items
+    #filterItems(type, e) {
+        const keyword = e.target.value.toLowerCase().trim();
+        const filteredArray = [];
+        document.querySelectorAll(`#${type}-items .card`).forEach((element) => {
+            // const name = element.children[0].children[0].children[0].innerText;
+            const name = element.firstElementChild.firstElementChild.textContent.toLowerCase();
+            if (!name.includes(keyword)) {
+                element.classList.add("d-none");
+            } else {
+                element.classList.remove("d-none");
+            }
+        });
     }
 }
 new App();
