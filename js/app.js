@@ -134,26 +134,24 @@ class App {
     #tracker;
     constructor() {
         this.#tracker = new CalorieTracker();
-        document.getElementById("meal-form").addEventListener("submit", (e) => {
-            e.preventDefault();
-            this.#newItem.call(this, "meal");
-        });
-        document.getElementById("workout-form").addEventListener("submit", (e) => {
-            e.preventDefault();
-            this.#newItem.call(this, "workout");
+        ["meal", "workout"].forEach((type) => {
+            document.getElementById(`${type}-form`).addEventListener("submit", this.#newItem.bind(this, type));
         });
     }
     // create New Item
-    #newItem(type) {
+    #newItem(type, e) {
+        e.preventDefault();
         const name = document.getElementById(`${type}-name`);
         const calories = document.getElementById(`${type}-calories`);
         const collapse = document.getElementById(`collapse-${type}`);
+
         // validation
         if (name.value === "" && calories.value === "") {
             alert(`Fill ${type} Field Please!`);
             return;
         }
-        // form new workout
+        
+        // form new item
         switch (type) {
             case "meal":
                 const meal = new Meal(name.value, +calories.value);
@@ -166,9 +164,11 @@ class App {
             default:
                 break;
         }
+
         // clear
         name.value = "";
         calories.value = "";
+
         // collapse html way and bs constructor  way
 
         // collapse.classList.remove("show");
@@ -177,5 +177,4 @@ class App {
         });
     }
 }
-
 new App();
