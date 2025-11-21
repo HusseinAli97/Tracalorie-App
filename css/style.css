@@ -19,3 +19,8 @@
 .card{
   transition: background ease-in-out .3s;
 }
+
+.card:has(#calories-limit){
+  cursor: pointer;
+
+}

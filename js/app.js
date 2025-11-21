@@ -20,9 +20,6 @@ class CalorieTracker {
         this.#displayBurnedCalories();
         this.#displayCaloriesRemaining();
         this.#displayCalorieProgress();
-
-        // Add Value of limit inside ui
-        document.getElementById("limit").value = this.#calorieLimit;
     }
 
     // Public
@@ -194,15 +191,11 @@ class CalorieTracker {
 
         // Setup transition and animate to target height + opacity
         item.style.transition = "height 260ms cubic-bezier(.2,.8,.2,1), opacity 200ms ease";
-        // If you had padding, animate them too (optional)
-        // item.style.transition += ", padding 200ms ease, margin 200ms ease";
 
         // start animation in next frame
         requestAnimationFrame(() => {
             item.style.height = targetHeight;
             item.style.opacity = "1";
-            // if you zeroed padding earlier, set them to desired values:
-            // item.style.paddingTop = "12px"; item.style.paddingBottom = "12px";
         });
 
         // cleanup after transition ends: remove inline height so card is responsive
@@ -220,13 +213,13 @@ class CalorieTracker {
         };
         item.addEventListener("transitionend", cleanup);
 
-        // Safety fallback: if transitionend doesn't fire, cleanup after timeout
+        // if transitionend doesn't fire, cleanup after timeout
         setTimeout(() => {
             if (item.parentElement) {
                 // call cleanup manually if still attached
                 cleanup();
             }
-        }, 500); // should be slightly longer than transition
+        }, 500);
     }
 
     // Render and Create ELements In DOM
@@ -398,7 +391,6 @@ class App {
         this.#tracker.loadItems();
         this.#loadEvents();
     }
-
     // LoadEvents
     #loadEvents() {
         ["meal", "workout"].forEach((type) => {
@@ -408,6 +400,9 @@ class App {
         });
         document.getElementById("reset").addEventListener("click", this.#reset.bind(this, ["meal", "workout"]));
         document.getElementById("limit-form").addEventListener("click", this.#setLimit.bind(this));
+        // Add Value of limit inside ui
+        document.getElementById("modal-btn").addEventListener("click", this.#setLimitCurrant.bind(this));
+        document.getElementById("daily").addEventListener("click", this.#openModal.bind(this));
     }
     // create New Item
     #newItem(type, e) {
@@ -446,7 +441,15 @@ class App {
             toggle: true,
         });
     }
-
+    #setLimitCurrant() {
+        document.getElementById("limit").value = Storage.getCaloriesLimit();
+    }
+    #openModal() {
+        document.getElementById("limit").value = Storage.getCaloriesLimit();
+        const modalElement = document.getElementById("limit-modal");
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        modal.show();
+    }
     // delete Items
     #removeItem(type, e) {
         if (e.target.classList.contains("delete") || e.target.classList.contains("fa-xmark")) {
