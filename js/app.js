@@ -10,8 +10,8 @@ class CalorieTracker {
     constructor() {
         this.#calorieLimit = Storage.getCaloriesLimit();
         this.#totalCalories = Storage.getTotalCalories();
-        this.#meals = [];
-        this.#workouts = [];
+        this.#meals = Storage.getMeals();
+        this.#workouts = Storage.getWorkouts();
 
         // Render on Page Load
         this.#displayTotalCalories();
@@ -28,6 +28,7 @@ class CalorieTracker {
         this.#meals.push(meal);
         this.#totalCalories += meal.calories;
         Storage.setTotalCalories(this.#totalCalories);
+        Storage.saveMeal(meal);
         this.#displayNewItem(meal, "mealItem", "bg-primary");
         this.#renderStats();
     }
@@ -36,6 +37,7 @@ class CalorieTracker {
         this.#workouts.push(workout);
         this.#totalCalories -= workout.calories;
         Storage.setTotalCalories(this.#totalCalories);
+        Storage.saveWorkout(workout);
         this.#displayNewItem(workout, "workoutItem", "bg-secondary");
         this.#renderStats();
     }
@@ -85,6 +87,11 @@ class CalorieTracker {
         Storage.setCaloriesLimit(calorieLimit);
         this.#displayCaloriesLimit();
         this.#renderStats();
+    }
+    // LoadItems
+    loadItems() {
+        this.#meals.forEach((meal) => this.#displayNewItem(meal, "mealItem", "bg-primary"));
+        this.#workouts.forEach((workout) => this.#displayNewItem(workout, "workoutItem", "bg-secondary"))
     }
 
     // Private
@@ -230,6 +237,7 @@ class Workout {
 // Storage store Values and Elements inside Local
 
 class Storage {
+    // get and set Limit Calories On storage
     static getCaloriesLimit(defaultLimit = 2000) {
         let calorieLimit;
         let local = localStorage.getItem("calorieLimit");
@@ -243,7 +251,8 @@ class Storage {
     static setCaloriesLimit(calorieLimit) {
         localStorage.setItem("calorieLimit", calorieLimit);
     }
-
+    
+    // get and set TotalCalories on storage
     static getTotalCalories(defaultTotal = 0) {
         let totalCalorie;
         let local = localStorage.getItem("totalCalorie");
@@ -257,6 +266,42 @@ class Storage {
     static setTotalCalories(totalCalorie) {
         localStorage.setItem("totalCalorie", totalCalorie);
     }
+
+    // get and set Meals on storage
+    static getMeals(defaultMeals = []) {
+        let meals;
+        let local = localStorage.getItem("meals");
+        if (local === null) {
+            meals = defaultMeals;
+        } else {
+            let localArr = localStorage.getItem("meals");
+            meals = JSON.parse(localArr);
+        }
+        return meals;
+    }
+    static saveMeal(meal) {
+        const meals = Storage.getMeals();
+        meals.push(meal);
+        localStorage.setItem("meals", JSON.stringify(meals));
+    }
+
+    // get and set WorkOuts on storage
+    static getWorkouts(defaultWorkouts = []) {
+        let workouts;
+        let local = localStorage.getItem("workouts");
+        if (local === null) {
+            workouts = defaultWorkouts;
+        } else {
+            let localArr = localStorage.getItem("workouts");
+            workouts = JSON.parse(localArr);
+        }
+        return workouts;
+    }
+    static saveWorkout(workout) {
+        const workouts = Storage.getWorkouts();
+        workouts.push(workout);
+        localStorage.setItem("workouts", JSON.stringify(workouts));
+    }
 }
 
 // App Class :Handle events In project
@@ -264,6 +309,12 @@ class App {
     #tracker;
     constructor() {
         this.#tracker = new CalorieTracker();
+        this.#tracker.loadItems();
+        this.#loadEvents();
+    }
+
+    // LoadEvents
+    #loadEvents() {
         ["meal", "workout"].forEach((type) => {
             document.getElementById(`${type}-form`).addEventListener("submit", this.#newItem.bind(this, type));
             document.getElementById(`${type}-items`).addEventListener("click", this.#removeItem.bind(this, type));
