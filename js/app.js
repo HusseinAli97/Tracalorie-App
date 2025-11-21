@@ -43,9 +43,11 @@ class CalorieTracker {
     }
     // Reset
     resetDay() {
+        this.#calorieLimit = 2000;
         this.#totalCalories = 0;
         this.#meals = [];
         this.#workouts = [];
+        Storage.clearAll();
         this.#renderStats();
     }
     // Remove Method
@@ -57,6 +59,7 @@ class CalorieTracker {
                     this.#totalCalories -= this.#meals[indexMeal].calories;
                     Storage.setTotalCalories(this.#totalCalories);
                     this.#meals.splice(indexMeal, 1);
+                    Storage.removeMeal(id);
                     this.#renderStats();
                 }
                 break;
@@ -66,6 +69,7 @@ class CalorieTracker {
                     this.#totalCalories += this.#workouts[indexWorkout].calories;
                     Storage.setTotalCalories(this.#totalCalories);
                     this.#workouts.splice(indexWorkout, 1);
+                    Storage.removeWorkout(id);
                     this.#renderStats();
                 }
                 break;
@@ -91,7 +95,7 @@ class CalorieTracker {
     // LoadItems
     loadItems() {
         this.#meals.forEach((meal) => this.#displayNewItem(meal, "mealItem", "bg-primary"));
-        this.#workouts.forEach((workout) => this.#displayNewItem(workout, "workoutItem", "bg-secondary"))
+        this.#workouts.forEach((workout) => this.#displayNewItem(workout, "workoutItem", "bg-secondary"));
     }
 
     // Private
@@ -251,7 +255,7 @@ class Storage {
     static setCaloriesLimit(calorieLimit) {
         localStorage.setItem("calorieLimit", calorieLimit);
     }
-    
+
     // get and set TotalCalories on storage
     static getTotalCalories(defaultTotal = 0) {
         let totalCalorie;
@@ -301,6 +305,31 @@ class Storage {
         const workouts = Storage.getWorkouts();
         workouts.push(workout);
         localStorage.setItem("workouts", JSON.stringify(workouts));
+    }
+    // Remove Meal And Work Out From Storage
+    static removeMeal(id) {
+        let storageMeals = this.getMeals();
+        if (storageMeals.length !== 0) {
+            storageMeals = storageMeals.filter((meal) => meal.id !== id);
+            localStorage.setItem("meals", JSON.stringify(storageMeals));
+
+            return;
+        }
+    }
+    static removeWorkout(id) {
+        let storageWorkouts = this.getWorkouts();
+        if (storageWorkouts.length !== 0) {
+            storageWorkouts = storageWorkouts.filter((workout) => workout.id !== id);
+            localStorage.setItem("workouts", JSON.stringify(storageWorkouts));
+            return;
+        }
+    }
+    // reset
+    static clearAll() {
+        localStorage.clear("meals");
+        localStorage.clear("workouts");
+        localStorage.clear("totalCalorie");
+        localStorage.clear("calorieLimit");
     }
 }
 
