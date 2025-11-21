@@ -170,7 +170,7 @@ class CalorieTracker {
             default:
                 break;
         }
-        // force reflow to make window read card enter first 
+        // force reflow to make window read card enter first
         void item.offsetWidth;
 
         // active class to start transition
@@ -410,7 +410,7 @@ class App {
                 const theItemCard = e.target.closest(".card");
                 const id = theItemCard.dataset.id;
                 this.#tracker.removeTheItem(id, type);
-                // Card Remove Animation 
+                // Card Remove Animation
                 theItemCard.classList.add("card-exit");
                 void theItemCard.offsetWidth;
                 theItemCard.classList.add("card-exit-active");
@@ -439,11 +439,13 @@ class App {
 
     // reset
     #reset(type) {
-        this.#tracker.resetDay();
-        type.forEach((type) => {
-            document.getElementById(`${type}-items`).innerHTML = "";
-            document.getElementById(`filter-${type}s`).value = "";
-        });
+        if (confirm("Are you Sure u wanna Reset! ?")) {
+            this.#tracker.resetDay();
+            type.forEach((type) => {
+                document.getElementById(`${type}-items`).innerHTML = "";
+                document.getElementById(`filter-${type}s`).value = "";
+            });
+        }
     }
 
     // set LimitCalories
