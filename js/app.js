@@ -140,12 +140,17 @@ class CalorieTracker {
 
         let remaining = this.#calorieLimit - this.#totalCalories;
         caloriesRemainingEL.innerHTML = remaining;
+        let clRemaining = caloriesRemainingEL.parentElement.parentElement;
 
         if (remaining <= 0 || remaining > this.#calorieLimit) {
-            caloriesRemainingEL.parentElement.parentElement.classList.replace("bg-light", "bg-danger");
+            if (clRemaining.classList.contains("bg-light")) {
+                clRemaining.classList.replace("bg-light", "bg-danger");
+            }
             progressEL.classList.add("bg-danger");
         } else {
-            caloriesRemainingEL.parentElement.parentElement.classList.replace("bg-danger", "bg-light");
+            if (clRemaining.classList.contains("bg-danger")) {
+                clRemaining.classList.replace("bg-danger", "bg-light");
+            }
             progressEL.classList.remove("bg-danger");
         }
     }

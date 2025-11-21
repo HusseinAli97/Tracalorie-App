@@ -33,5 +33,10 @@
 
 /* Progress Bar */
 #calorie-progress {
-  transition: width ease-in-out .7s;
+  transition: width ease-in-out .7s,background ease-in-out .3s;
+}
+
+/* cards */
+.card{
+  transition: background ease-in-out .3s;
 }
