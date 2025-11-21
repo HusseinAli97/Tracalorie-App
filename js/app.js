@@ -321,7 +321,7 @@ class Storage {
     }
     // Remove Meal And Work Out From Storage
     static removeMeal(id) {
-        let storageMeals = this.getMeals();
+        let storageMeals = Storage.getMeals();
         if (storageMeals.length !== 0) {
             storageMeals = storageMeals.filter((meal) => meal.id !== id);
             localStorage.setItem("meals", JSON.stringify(storageMeals));
@@ -330,7 +330,7 @@ class Storage {
         }
     }
     static removeWorkout(id) {
-        let storageWorkouts = this.getWorkouts();
+        let storageWorkouts = Storage.getWorkouts();
         if (storageWorkouts.length !== 0) {
             storageWorkouts = storageWorkouts.filter((workout) => workout.id !== id);
             localStorage.setItem("workouts", JSON.stringify(storageWorkouts));
