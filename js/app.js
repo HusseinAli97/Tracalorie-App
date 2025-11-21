@@ -8,7 +8,7 @@ class CalorieTracker {
 
     // initial values
     constructor() {
-        this.#calorieLimit = 2000;
+        this.#calorieLimit = Storage.getCaloriesLimit();
         this.#totalCalories = 0;
         this.#meals = [];
         this.#workouts = [];
@@ -78,6 +78,7 @@ class CalorieTracker {
     // set Limit
     set setLimit(calorieLimit) {
         this.#calorieLimit = calorieLimit;
+        Storage.setCaloriesLimit(calorieLimit);
         this.#displayCaloriesLimit();
         this.#renderStats();
     }
@@ -222,6 +223,24 @@ class Workout {
         this.calories = calories;
     }
 }
+// Storage store Values and Elements inside Local
+
+class Storage {
+    static getCaloriesLimit(defaultLimit = 2000) {
+        let calorieLimit;
+        let local = localStorage.getItem("calorieLimit");
+        if (local === null) {
+            calorieLimit = defaultLimit;
+        } else {
+            calorieLimit = +localStorage.getItem("calorieLimit");
+        }
+        return calorieLimit;
+    }
+    static setCaloriesLimit(calorieLimit) {
+
+        localStorage.setItem("calorieLimit", calorieLimit);
+    }
+}
 
 // App Class :Handle events In project
 class App {
@@ -268,12 +287,12 @@ class App {
         calories.value = "";
 
         // collapse html way and bs constructor  way
-
         // collapse.classList.remove("show");
         const bsCollapse = new bootstrap.Collapse(collapse, {
             toggle: true,
         });
     }
+
     // delete Items
     #removeItem(type, e) {
         if (e.target.classList.contains("delete") || e.target.classList.contains("fa-xmark")) {
@@ -285,6 +304,7 @@ class App {
             }
         }
     }
+
     // filter Items
     #filterItems(type, e) {
         const keyword = e.target.value.toLowerCase().trim();
@@ -298,6 +318,7 @@ class App {
             }
         });
     }
+
     // reset
     #reset(type) {
         this.#tracker.resetDay();
@@ -306,6 +327,7 @@ class App {
             document.getElementById(`filter-${type}s`).value = "";
         });
     }
+
     // set LimitCalories
     #setLimit(e) {
         e.preventDefault();
