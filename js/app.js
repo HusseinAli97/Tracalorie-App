@@ -79,14 +79,7 @@ class CalorieTracker {
                 break;
         }
     }
-    // Getter
-    get fullData() {
-        return {
-            Meals: this.#meals,
-            Workouts: this.#workouts,
-            ToTalCalories: this.#totalCalories,
-        };
-    }
+
     // set Limit
     set setLimit(calorieLimit) {
         this.#calorieLimit = calorieLimit;
@@ -295,11 +288,19 @@ class Storage {
     static getMeals(defaultMeals = []) {
         let meals;
         let local = localStorage.getItem("meals");
+
         if (local === null) {
             meals = defaultMeals;
         } else {
-            let localArr = localStorage.getItem("meals");
-            meals = JSON.parse(localArr);
+            try {
+                let localArr = localStorage.getItem("meals");
+                parsed = JSON.parse(localArr);
+                // Validation on Parsed Array
+                meals = Array.isArray(parsed) ? parsed : defaultMeals;
+            } catch (err) {
+                console.warn("Error on Parsed Meals from Localstorage", err);
+                meals = defaultMeals;
+            }
         }
         return meals;
     }
@@ -313,12 +314,22 @@ class Storage {
     static getWorkouts(defaultWorkouts = []) {
         let workouts;
         let local = localStorage.getItem("workouts");
+
         if (local === null) {
             workouts = defaultWorkouts;
         } else {
-            let localArr = localStorage.getItem("workouts");
-            workouts = JSON.parse(localArr);
+            try {
+                let localArr = localStorage.getItem("workouts");
+                const parsed = JSON.parse(localArr);
+                // Validation on Parsed Array
+                workouts = Array.isArray(parsed) ? parsed : defaultWorkouts;
+            } catch (err) {
+                console.warn("Error parsing workouts from localStorage", err);
+                localStorage.removeItem("workouts");
+                workouts = defaultWorkouts;
+            }
         }
+
         return workouts;
     }
     static saveWorkout(workout) {
@@ -379,8 +390,8 @@ class App {
         const collapse = document.getElementById(`collapse-${type}`);
 
         // validation
-        if (name.value === "" && calories.value === "") {
-            alert(`Fill ${type} Field Please!`);
+        if (name.value === "" || calories.value === "") {
+            alert(`Fill ${type.toUpperCase()} Field Please!`);
             return;
         }
 
