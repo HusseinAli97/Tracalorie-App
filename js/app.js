@@ -159,6 +159,7 @@ class CalorieTracker {
         const mealItems = document.getElementById("meal-items");
         const workoutItems = document.getElementById("workout-items");
         const item = this.#createCard(oneItem, bg);
+        item.classList.add("card-enter");
         switch (type) {
             case "mealItem":
                 mealItems.append(item);
@@ -169,6 +170,18 @@ class CalorieTracker {
             default:
                 break;
         }
+        // force reflow to make window read card enter first 
+        void item.offsetWidth;
+
+        // active class to start transition
+        item.classList.add("card-enter-active");
+
+        // cleanup after transition ends
+        const cleanupEnter = (e) => {
+            item.classList.remove("card-enter", "card-enter-active");
+            item.removeEventListener("transitionend", cleanupEnter);
+        };
+        item.addEventListener("transitionend", cleanupEnter);
     }
 
     // Render and Create ELements In DOM
@@ -397,7 +410,15 @@ class App {
                 const theItemCard = e.target.closest(".card");
                 const id = theItemCard.dataset.id;
                 this.#tracker.removeTheItem(id, type);
-                theItemCard.remove();
+                // Card Remove Animation 
+                theItemCard.classList.add("card-exit");
+                void theItemCard.offsetWidth;
+                theItemCard.classList.add("card-exit-active");
+                const onTransitionEnd = (evt) => {
+                    theItemCard.removeEventListener("transitionend", onTransitionEnd);
+                    theItemCard.remove();
+                };
+                theItemCard.addEventListener("transitionend", onTransitionEnd);
             }
         }
     }

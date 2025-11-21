@@ -6,8 +6,32 @@
 
 .hidden {
   display: none;
-}/*# sourceMappingURL=style.css.map */
+}
 
-#calorie-progress{
+/*# sourceMappingURL=style.css.map */
+/* Adding */
+.card-enter {
+  opacity: 0;
+  transform: translateY(-8px) scale(.995);
+}
+.card-enter-active {
+  transition: opacity .22s ease, transform .22s ease;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Removing */
+.card-exit {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.card-exit-active {
+  transition: opacity .18s ease, transform .18s ease;
+  opacity: 0;
+  transform: translateY(-8px) scale(.98);
+}
+
+/* Progress Bar */
+#calorie-progress {
   transition: width ease-in-out .7s;
 }
