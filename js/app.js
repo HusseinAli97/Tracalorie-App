@@ -20,6 +20,9 @@ class CalorieTracker {
         this.#displayBurnedCalories();
         this.#displayCaloriesRemaining();
         this.#displayCalorieProgress();
+
+        // Add Value of limit inside ui
+        document.getElementById("limit").value = this.#calorieLimit;
     }
 
     // Public
@@ -151,7 +154,7 @@ class CalorieTracker {
         const progressEL = document.getElementById("calorie-progress");
         const percentage = (this.#totalCalories / this.#calorieLimit) * 100;
         const width = Math.min(percentage, 100);
-        progressEL.style = `width:${width}%`;
+        progressEL.style.width = `${width}%`;
     }
 
     #displayNewItem(oneItem, type, bg) {
@@ -338,9 +341,9 @@ class Storage {
     }
     // reset
     static clearAll() {
-        localStorage.clear("meals");
-        localStorage.clear("workouts");
-        localStorage.clear("totalCalorie");
+        localStorage.removeItem("meals");
+        localStorage.removeItem("workouts");
+        localStorage.removeItem("totalCalorie");
     }
 }
 
