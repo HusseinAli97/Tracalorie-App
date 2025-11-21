@@ -43,7 +43,6 @@ class CalorieTracker {
     }
     // Reset
     resetDay() {
-        this.#calorieLimit = 2000;
         this.#totalCalories = 0;
         this.#meals = [];
         this.#workouts = [];
@@ -342,7 +341,6 @@ class Storage {
         localStorage.clear("meals");
         localStorage.clear("workouts");
         localStorage.clear("totalCalorie");
-        localStorage.clear("calorieLimit");
     }
 }
 
