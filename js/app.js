@@ -158,7 +158,16 @@ class CalorieTracker {
         const mealItems = document.getElementById("meal-items");
         const workoutItems = document.getElementById("workout-items");
         const item = this.#createCard(oneItem, bg);
-        item.classList.add("card-enter");
+
+        // initial collapsed state ===
+        item.style.boxSizing = "border-box";
+        item.style.height = "0px";
+        item.style.overflow = "hidden";
+        item.style.opacity = "0";
+        item.style.paddingTop = "0";
+        item.style.paddingBottom = "0";
+
+        // Append to DOM
         switch (type) {
             case "mealItem":
                 mealItems.append(item);
@@ -169,18 +178,55 @@ class CalorieTracker {
             default:
                 break;
         }
-        // force reflow to make window read card enter first
-        void item.offsetWidth;
 
-        // active class to start transition
-        item.classList.add("card-enter-active");
+        // Force reflow so browser registers the starting height = 0
+        void item.offsetHeight;
 
-        // cleanup after transition ends
-        const cleanupEnter = (e) => {
-            item.classList.remove("card-enter", "card-enter-active");
-            item.removeEventListener("transitionend", cleanupEnter);
+        // Measure the natural height by temporarily clearing height
+        item.style.height = "auto";
+        const targetHeight = item.offsetHeight + "px";
+
+        // Re-set to 0 immediately (we want to animate from 0 -> targetHeight)
+        item.style.height = "0px";
+
+        // Force reflow again before starting transition
+        void item.offsetHeight;
+
+        // Setup transition and animate to target height + opacity
+        item.style.transition = "height 260ms cubic-bezier(.2,.8,.2,1), opacity 200ms ease";
+        // If you had padding, animate them too (optional)
+        // item.style.transition += ", padding 200ms ease, margin 200ms ease";
+
+        // start animation in next frame
+        requestAnimationFrame(() => {
+            item.style.height = targetHeight;
+            item.style.opacity = "1";
+            // if you zeroed padding earlier, set them to desired values:
+            // item.style.paddingTop = "12px"; item.style.paddingBottom = "12px";
+        });
+
+        // cleanup after transition ends: remove inline height so card is responsive
+        const cleanup = (e) => {
+            // ensure we respond once
+            item.removeEventListener("transitionend", cleanup);
+            // clear inline styles used only for animation
+            item.style.transition = "";
+            item.style.height = "";
+            item.style.overflow = "";
+            item.style.opacity = "";
+            item.style.boxSizing = "";
+            item.style.paddingTop = "";
+            item.style.paddingBottom = "";
         };
-        item.addEventListener("transitionend", cleanupEnter);
+        item.addEventListener("transitionend", cleanup);
+
+        // Safety fallback: if transitionend doesn't fire, cleanup after timeout
+        setTimeout(() => {
+            if (item.parentElement) {
+                // call cleanup manually if still attached
+                cleanup();
+            }
+        }, 500); // should be slightly longer than transition
     }
 
     // Render and Create ELements In DOM
@@ -406,17 +452,55 @@ class App {
         if (e.target.classList.contains("delete") || e.target.classList.contains("fa-xmark")) {
             if (confirm("Are You Sure ?")) {
                 const theItemCard = e.target.closest(".card");
-                const id = theItemCard.dataset.id;
+                const id = String(theItemCard.dataset.id);
                 this.#tracker.removeTheItem(id, type);
-                // Card Remove Animation
-                theItemCard.classList.add("card-exit");
-                void theItemCard.offsetWidth;
-                theItemCard.classList.add("card-exit-active");
-                const onTransitionEnd = (evt) => {
-                    theItemCard.removeEventListener("transitionend", onTransitionEnd);
-                    theItemCard.remove();
+                const el = theItemCard;
+                // get current height (includes padding + border)
+                const startHeight = el.offsetHeight + "px";
+
+                // prepare element for collapsing
+                el.style.boxSizing = "border-box";
+                el.style.height = startHeight;
+                el.style.overflow = "hidden";
+
+                // ensure any existing transition cleared
+                el.style.transition = "none";
+
+                // force reflow to make sure browser registers starting height
+                void el.offsetHeight;
+
+                // set transition (tweak durations to taste)
+                el.style.transition = "height 220ms ease, margin 220ms ease, padding 220ms ease, opacity 180ms ease";
+
+                // collapse in next frame
+                requestAnimationFrame(() => {
+                    el.style.height = "0";
+                    el.style.paddingTop = "0";
+                    el.style.paddingBottom = "0";
+                    el.style.marginTop = "0";
+                    el.style.marginBottom = "0";
+                    el.style.opacity = "0";
+                });
+
+                // cleanup and remove on transition end with timeout fallback
+                let removed = false;
+                const onEnd = (evt) => {
+                    // avoid multiple calls (browsers may fire per-property)
+                    if (removed) return;
+                    removed = true;
+                    el.removeEventListener("transitionend", onEnd);
+                    el.remove();
                 };
-                theItemCard.addEventListener("transitionend", onTransitionEnd);
+                el.addEventListener("transitionend", onEnd);
+
+                // fallback: in case transitionend doesn't fire
+                setTimeout(() => {
+                    if (!removed) {
+                        removed = true;
+                        el.removeEventListener("transitionend", onEnd);
+                        el.remove();
+                    }
+                }, 400);
             }
         }
     }
