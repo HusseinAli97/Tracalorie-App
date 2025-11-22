@@ -41,6 +41,7 @@ module.exports = {
             title: "Tracalorie | Track your Caloric Intake",
             filename: "index.html",
             template: "./src/index.html",
+            favicon: "./favicon.ico",
         }),
         new MiniCssExtractPlugin({
             filename: "style.css",
