@@ -1,0 +1,26 @@
+*,
+*::after,
+*::before {
+    box-sizing: border-box;
+}
+
+.hidden {
+    display: none;
+}
+
+/*# sourceMappingURL=style.css.map */
+
+/* Progress Bar */
+#calorie-progress {
+    transition: width ease-in-out .7s, background ease-in-out .3s;
+}
+
+/* cards */
+.card {
+    transition: background ease-in-out .3s;
+}
+
+.card:has(#calories-limit) {
+    cursor: pointer;
+
+}
