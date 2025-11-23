@@ -72,12 +72,6 @@ npm run build
 
 ![Demo GIF](demo.gif)
 
-```
-```
-
-```markdown
-```
-
 ---
 
 ## 📁 Project Structure
